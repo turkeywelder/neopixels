@@ -27,25 +27,100 @@ void setup() {
 
 void loop() {
 
+  rainbowBar(true);
+    rainbowBar(false);
+  radar();
+    radar();
+    strip.clear();
    outerLoop();
    middleLoop();
    innerLoop();
+//
+    barSpiral(false);
+    barSpiral(true);
+    
+    for(byte i=0; i<9; i++)
+    {
+      fireWork(Wheel((int)random(0, 255)));
+    }
+    
+}
 
-    barSpiral(false);
-    barSpiral(true);
-    barSpiral(false);
-    barSpiral(true);
-    fireWork(strip.Color(255, 120,2));
-    fireWork(strip.Color(0, 250,0));
-    fireWork(strip.Color(170, 0,255));
-    fireWork(strip.Color(255,0,0));
-    fireWork(strip.Color(255,255,255));
+
+void rainbowBar(boolean stack){
+  strip.clear();
+ uint32_t colour = 0; 
+  for (int i = 0; i < 24; i++) {
+   if(!stack){
+   strip.clear();
+   }
+   colour = Wheel(i*5);
+  
+  byte midIndex = map(i, 0, 23, 0, 15);
+  byte innIndex = map(i, 0, 23, 0, 6); 
+ 
+  //40 is the centre point, always on:
+  //full intensity:
+   strip.setPixelColor(40, colour);
+   strip.setPixelColor(_outer[i], colour);
+   strip.setPixelColor(_middle[midIndex], colour);
+   strip.setPixelColor(_inner[innIndex], colour);
+   
+  delay(60);
+  strip.show();
+   }
 }
 
 // All three rings circle and highlight a random pixel on each loop
-void radar(){
-
+  byte blip = 0;
+  byte fadecount = 0;
   
+void radar(){
+  randomSeed(analogRead(0));
+  byte midIndex = 0;
+  byte innIndex = 0;
+  int r = 70; //strip.Color(20, 190,40);
+  int g = 10;
+  int b = 10;
+  uint32_t red = strip.Color(0, 255, 0);
+  
+  for (int i = 0; i < 24; i++) {
+    
+   strip.clear();
+   if(fadecount > 0)
+   {
+     fadecount++;
+    int fade = map(fadecount, 0, 23, 50, 250);
+    strip.setPixelColor(blip, strip.Color(0, 255-fade, 0));
+      if(fade > 240){
+      fadecount = 0;
+      blip = (int)random(0, NUMPIXELS);
+      }
+   }
+  
+   midIndex = map(i, 0, 23, 0, 15);
+   innIndex = map(i, 0, 23, 0, 6); 
+ 
+  //40 is the centre point, always on:
+  //full intensity:
+   strip.setPixelColor(40, r,g,b);
+   strip.setPixelColor(_outer[i], r,g,b);
+   strip.setPixelColor(_middle[midIndex], r,g,b);
+   strip.setPixelColor(_inner[innIndex], r,g,b);
+   
+ //turn the blip on if it's on this bar  
+  if(fadecount == 0 && 
+     (blip == _outer[i] ||
+      blip == _middle[midIndex] || 
+      blip == _inner[innIndex])){
+    strip.setPixelColor(blip, red);
+    fadecount = 1;
+  }
+  
+    strip.show();
+   delay(70);
+  }
+   
   
 }
 
@@ -150,7 +225,7 @@ void barSpiral(boolean leaveOn){
     }
     
     for (byte j = 0; j < 7; j++) {
-      strip.setPixelColor(steps[i][j], Wheel(c));  
+      strip.setPixelColor(steps[i][j], Wheel(c*2));  
       c++;     
     }
     strip.show();    
