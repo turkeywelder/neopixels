@@ -26,7 +26,7 @@ void setup() {
 }
 
 void loop() {
-
+strip.setBrightness(12);
   rainbowBar(true);
     rainbowBar(false);
   radar();
